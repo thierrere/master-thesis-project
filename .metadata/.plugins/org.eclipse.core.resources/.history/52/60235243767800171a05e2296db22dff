@@ -1,0 +1,548 @@
+package test_Approche
+
+import java.awt._;
+import javax.swing._;
+
+class Auteur{
+   //Integration de la grammaire
+  
+  trait Soumission {var tree="";}
+  trait Accuse {var tree="";}
+  trait Oui {var tree=""; }
+  trait Non {var tree=""}
+  trait Etat {var portAut:Int=0; var tree="";}
+  trait Rejete {var tree="";}
+  trait Accepte {var tree="";}
+  trait AccSModif {var portAut:Int=0; var portEd:Int=0; var tree="";}
+  trait Correction {var portAut:Int=0; var portEd:Int=0; var tree="";}
+  
+  case class Sous (article:String, portAut:Int, portEd:Int, accus:Accuse) extends Soumission;
+  case class Accus1 (portAut:Int, accuseRec:String, decision:String, oui:Oui, etat:Etat) extends Accuse;
+  case class Accus2 (accuseRec:String, decision:String, non:Non) extends Accuse;
+  case class Yes extends Oui;
+  case class No extends Non;
+  case class Et1 (rapport:String, decision:String, acce:Accepte) extends Etat;
+  case class Et2 (rapport:String, decision:String, rejet:Rejete) extends Etat;
+  case class Et3 (portEd:Int, rapport:String, decision:String, accs: AccSModif) extends Etat;
+  case class Acc extends Accepte;
+  case class Rj extends Rejete;
+  case class Acs (article:String, reponseDecis:String, cor:Correction) extends AccSModif;
+  case class Cor1 (decision:String, acs:AccSModif) extends Correction;
+  case class Cor2 (decision:String, acc:Accepte) extends Correction;    
+  
+  
+  //Fin d'intégration de la grammaire
+  
+
+	var cheminPdf:String="";
+	var T:Arbre=new Arbre()
+	var noeudCourant:Arbre=new Arbre()
+	var Dessin2=new AuteurTree();
+	var ed:Editeur=null
+
+	//Artefact
+	var accuse:AccuseArtf=null;
+	var decision:Decision=null;
+	
+	//JMenuBar pour l'interface
+	var Menu:JMenuBar=new JMenuBar();
+	var  menu:JMenu=new JMenu("Action");
+	val ident:JMenuItem=new JMenuItem("Identifiaction"); 
+	val réinit:JMenuItem=new JMenuItem("Réinitialiser l'arborescence");
+	menu.add(ident);menu.addSeparator();menu.add(réinit);
+	Menu.add(menu);
+
+
+	//Bouttons pour l'interface
+	val reset=new JButton("Reset");
+	val sous=new JButton("Soumission");
+	val accsmodif=new JButton("Envoyer correction");
+	val parcours=new JButton("Parcourir...");
+	val ouvrir=new JButton("Ouvrir")
+	
+	//ScrollPanes pour les JTextArea
+	var scrpane,scrpane2,scrpane3:JScrollPane=null;
+
+	//Initialisation des éléments du formulaire 1 pour la Soumission
+	val title=new JLabel("Titre de l'article: ");
+	val name=new JLabel("Nom des auteurs: ");
+	val resum=new JLabel("Résumé: ");
+	val art=new JLabel("Article: ");
+	val ttitle=new JTextField(10);val tname=new JTextField(10);val tart=new JTextField(10);
+	val tresum=new JTextArea(5,10);tresum.setAutoscrolls(true);tresum.setLineWrap(true);
+	scrpane=new JScrollPane(tresum);
+	val form1=new JPanel(new GridLayout(8,2));
+	form1.add(title);form1.add(ttitle);
+	form1.add(name);form1.add(tname);
+	form1.add(resum);form1.add(scrpane)//form1.add(tresum);
+	form1.add(art);form1.add(tart);
+	//form1.add(reset);
+	form1.add(sous);//form1.add(parcours);
+
+	//Initialisation des éléments du formulaire 2 pour Envoyer correction
+	val title2=new JLabel("Titre de l'article: ");
+	val name2=new JLabel("Nom des auteurs: ");
+	val resum2=new JLabel("Résumé: ");
+	val art2=new JLabel("Article: ");
+	val sugest=new JLabel("Suggestions et observations: ");
+	val rsugest=new JLabel("Reponse suggestions");
+	val ttitle2=new JTextField(10);val tname2=new JTextField(10);val tart2=new JTextField(10);
+	val tresum2=new JTextArea(5,10);tresum2.setAutoscrolls(true);tresum2.setLineWrap(true);
+	scrpane2=new JScrollPane(tresum2);
+	val tsugest=new JTextField(10);val trsugest=new JTextField(10);
+	val  form2=new JPanel(new GridLayout(8,2));
+	form2.add(title2);form2.add(ttitle2);
+	form2.add(name2);form2.add(tname2);
+	form2.add(resum2);form2.add(scrpane2)//form2.add(tresum2);
+	form2.add(art2);form2.add(tart2);
+	form2.add(sugest);form2.add(tsugest);
+	form2.add(rsugest);form2.add(trsugest);
+	//form1.add(reset);
+	form2.add(accsmodif);
+
+	//Panneau des messages
+	var pane4=new JPanel();
+	pane4.setAutoscrolls(true);
+
+	//Tabbed pane
+	val tpane=new JTabbedPane();
+	tpane.add("Soumission",form1);
+	tpane.add("Envoyer correction",form2);
+	tpane.add("Messages",pane4);
+
+	val  ecouteur=new EcouteurAuteur(this);
+	sous.addActionListener(ecouteur);
+	accsmodif.addActionListener(ecouteur);
+	réinit.addActionListener(ecouteur);
+	//parcours.addActionListener(ecouteur);
+	
+	//Grammaire de l'auteur
+	//val gramAut=new GramAuteur(this);
+
+	//pane1=new JPanel(new GridLayout(20,1));
+	//pane1.add(sous);pane1.add(accsmodif);
+
+	var pangen=new JPanel(new BorderLayout());
+	//pangen.add(tpane,BorderLayout.WEST); 
+	pangen.add(Dessin2,BorderLayout.WEST);
+
+	//Split Pane
+	var jpane=new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,tpane,pangen);
+
+	val fen=new JFrame("Espace de travail auteur");
+	fen.setContentPane(jpane);
+	//fen.pack();
+	fen.setJMenuBar(Menu);
+	fen.setSize(650,300);
+	fen.setVisible(true);
+
+	def parseur(operateur:java.lang.String, artefact:Artefact){
+		// TODO Auto-generated method stub		
+		if(operateur.equals("valide")){
+			if(!noeudCourant.getValeur.equals("Soumission")){
+				return;
+			}
+			accuse=artefact.asInstanceOf[AccuseArtf];
+			System.out.println("Noeud courant: "+noeudCourant.getValeur());
+			//Construction de l'interface message
+			tpane.remove(pane4);
+			pane4=new JPanel();
+			val t1=new JLabel("Accusé reçu");
+			val t11=new JLabel("                 ");
+			val t2=new JLabel("Date: ");
+			val t3=new JLabel(" "+accuse.getDate());
+			val t4=new JLabel("Texte: ");
+			val t5=new JTextArea(5,20);		
+			t5.setText(" "+accuse.getText());t5.setLineWrap(true);
+			scrpane3=new JScrollPane(t5);
+			pane4.add(t1);pane4.add(t11);pane4.add(t2);pane4.add(t3);pane4.add(t4);pane4.add(scrpane3)//pane4.add(t5);	
+			tpane.add("Messages",pane4);
+			this.accusef("Valide");
+
+		}
+		else if(operateur.equals("refuse")){
+			if(!noeudCourant.getValeur.equals("Soumission")){
+				return;
+			}
+			accuse=artefact.asInstanceOf[AccuseArtf];
+			System.out.println("Noeud courant: "+noeudCourant.getValeur());
+			//Construction de l'interface message
+			tpane.remove(pane4);
+			pane4=new JPanel();
+			val t1:JLabel=new JLabel("Accusé reçu");
+			val t11:JLabel=new JLabel("                 ");
+			val t2:JLabel=new JLabel("Date: ");
+			val t3:JLabel=new JLabel(" "+accuse.getDate());
+			val t4:JLabel=new JLabel("Texte: ");
+			val t5:JTextArea=new JTextArea(5,20);		
+			t5.setText(" "+accuse.getText());t5.setLineWrap(true);
+			scrpane3=new JScrollPane(t5);
+			pane4.add(t1);pane4.add(t11);pane4.add(t2);pane4.add(t3);pane4.add(t4);pane4.add(scrpane3)//pane4.add(t5);	
+			tpane.add("Messages",pane4);
+			this.accusef("Refuse");
+
+		}
+		else if(operateur.equals("accepte")){
+			System.out.println("Noeud courant: "+noeudCourant.getValeur());
+			if(noeudCourant.getValeur().equals("Accuse")){
+			val dec=artefact.asInstanceOf[Decision];
+			decision=new Decision();
+			if(dec!=null){
+				decision.setRelecteur(dec.getRelecteur);
+				decision.setDecision(dec.getDecision);
+			}
+			tpane.remove(pane4);
+			pane4=new JPanel();
+			val t1:JLabel=new JLabel("Décision reçue");
+			val t11:JLabel=new JLabel("     ");
+			val t2:JLabel=new JLabel("Date: ");
+			val t3:JLabel=new JLabel(" "+decision.getDate());
+			val t4:JLabel=new JLabel("Article accepté pour publication");
+			//val t5:JTextArea=new JTextArea(5,10);
+			pane4.add(t1);pane4.add(t11);pane4.add(t2);pane4.add(t3);pane4.add(t4);
+			tpane.add("Messages",pane4);
+			this.etat("Accepte");
+		}		
+			else {
+				if(!noeudCourant.getValeur.equals("AccSModif")){
+					return;
+				}
+				val dec=artefact.asInstanceOf[Decision];
+			decision=new Decision();
+			if(dec!=null){
+				decision.setRelecteur(dec.getRelecteur);
+				decision.setDecision(dec.getDecision);
+			}
+			tpane.remove(pane4);
+			pane4=new JPanel();
+			val t1:JLabel=new JLabel("Décision reçue");
+			val t11:JLabel=new JLabel("     ");
+			val t2:JLabel=new JLabel("Date: ");
+			val t3:JLabel=new JLabel(" "+decision.getDate());
+			val t4:JLabel=new JLabel("Article accepté pour publication");
+			//val t5:JTextArea=new JTextArea(5,10);
+			pane4.add(t1);pane4.add(t11);pane4.add(t2);pane4.add(t3);pane4.add(t4);
+			tpane.add("Messages",pane4);
+				this.correction("Accepte");
+			}
+
+		}
+		else if(operateur.equals("accsmodif")){
+			System.out.println("Noeud courant: "+noeudCourant.getValeur());	
+			if(noeudCourant.getValeur().equals("Accuse")){ 
+				val dec=artefact.asInstanceOf[Decision];
+			decision=new Decision();
+			if(dec!=null){
+				decision.setRelecteur(dec.getRelecteur);
+				decision.setDecision(dec.getDecision);
+			}
+			tpane.remove(pane4);
+			pane4=new JPanel();
+			val t1:JLabel=new JLabel("Décision reçue");
+			val t11:JLabel=new JLabel("     ");
+			val t2:JLabel=new JLabel("Date: ");
+			val t3:JLabel=new JLabel(" "+decision.getDate());
+			val t4:JLabel=new JLabel("Article accepté si modification apportées");
+			//val t5:JTextArea=new JTextArea(5,10);
+			pane4.add(t1);pane4.add(t11);pane4.add(t2);pane4.add(t3);pane4.add(t4);
+			tpane.add("Messages",pane4);
+			this.etat("AccSModif");
+		}
+		else {
+			if(!noeudCourant.getValeur.equals("AccSModif")){
+				return;
+			}
+			val dec=artefact.asInstanceOf[Decision];
+			decision=new Decision();
+			if(dec!=null){
+				decision.setRelecteur(dec.getRelecteur);
+				decision.setDecision(dec.getDecision);
+			}
+			tpane.remove(pane4);
+			pane4=new JPanel();
+			val t1:JLabel=new JLabel("Décision reçue");
+			val t11:JLabel=new JLabel("     ");
+			val t2:JLabel=new JLabel("Date: ");
+			val t3:JLabel=new JLabel(" "+decision.getDate());
+			val t4:JLabel=new JLabel("Article accepté si modification apportées");
+			//val t5:JTextArea=new JTextArea(5,10);
+			pane4.add(t1);pane4.add(t11);pane4.add(t2);pane4.add(t3);pane4.add(t4);
+			tpane.add("Messages",pane4);
+			this.correction("Accepte");
+		}
+	}
+	else if(operateur.equals("rejete")){
+		if(!noeudCourant.getValeur.equals("Accuse")){
+			return;
+		}
+		System.out.println("Noeud courant: "+noeudCourant.getValeur());
+		val dec=artefact.asInstanceOf[Decision];
+		decision=new Decision();
+		if(dec!=null){
+			decision.setRelecteur(dec.getRelecteur);
+			decision.setDecision(dec.getDecision);
+		}
+		tpane.remove(pane4);
+		pane4=new JPanel();
+		val t1:JLabel=new JLabel("Décision reçue");
+		val t11:JLabel=new JLabel("     ");
+		val t2:JLabel=new JLabel("Date: ");
+		val t3:JLabel=new JLabel(" "+decision.getDate());
+		val t4:JLabel=new JLabel("Article rejeté pour publication");
+		//val t5:JTextArea=new JTextArea(5,10);
+		pane4.add(t1);pane4.add(t11);pane4.add(t2);pane4.add(t3);pane4.add(t4);
+		tpane.add("Messages",pane4);
+		this.etat("rejete");
+	}
+}
+
+def soumission(){
+	//Construction de l'artefact article
+	if(!noeudCourant.getValeur.equals("")){
+		if(noeudCourant.getFilsGauche!=null){
+			if (noeudCourant.getFilsGauche.getValeur.equals("Non")){
+				T=new Arbre();
+			}
+		}
+	}
+	var a:Article=new Article();
+	a.setTitle(ttitle.getText());
+	a.setAuthorName(tname.getText());
+	a.setPath(tart.getText());
+	a.setResume(tresum.getText());
+	
+
+	//Gestion de l'arborescence
+	T.setValeur("Soumission");
+	T.setPère(null);
+	T.setNbreDeFils(1);
+	noeudCourant=T;
+	fen.setVisible(false);
+	pangen.remove(Dessin2);
+	Dessin2=new AuteurTree();
+	Dessin2.parcoursPrefixeTreeNode(this.T,null);
+	//fen.add(Dessin2);
+	pangen.add(Dessin2,BorderLayout.EAST);
+	fen.setVisible(true);
+	ed.parseur("soumission",a);
+	System.out.println("Auteur: Soumission effectuée");
+}
+
+def accusef(decision:String){
+	var accu:Arbre=new Arbre("Accuse");
+accu.setPère(noeudCourant);
+if(decision.equals("Valide")){
+	accu.setNbreDeFils(2);
+	//System.out.println("Article accepté de traitement");
+	var a:Arbre=new Arbre("Oui");
+	a.setPère(accu);
+	a.setNbreDeFils(0);
+	accu.setFilsGauche(a);
+	noeudCourant.setFilsGauche(accu);
+	noeudCourant=accu;
+	fen.setVisible(false);
+	pangen.remove(Dessin2);
+	Dessin2=new AuteurTree();
+	Dessin2.parcoursPrefixeTreeNode(this.T,null);
+	//fen.add(Dessin2);
+	pangen.add(Dessin2,BorderLayout.EAST);
+	fen.setVisible(true);
+	System.out.println("Auteur: Accusé recu");
+	this.parcoursPrefixe(T);
+	JOptionPane.showMessageDialog (
+			this.pangen, "Reception de l'accusé de l'éditeur!!", 
+			"Accusé reception", JOptionPane.OK_OPTION);
+	tpane.setSelectedComponent(pane4);
+}
+else{
+	//article Refuse de traitement
+	accu.setNbreDeFils(1);
+	System.out.println("Article refusé de traitement");
+	var a:Arbre=new Arbre("Non");
+	a.setPère(accu);
+	a.setNbreDeFils(0);
+	accu.setFilsGauche(a);
+	noeudCourant.setFilsGauche(accu);
+	noeudCourant=accu;
+	fen.setVisible(false);
+	pangen.remove(Dessin2);
+	Dessin2=new AuteurTree();
+	Dessin2.parcoursPrefixeTreeNode(this.T,null);
+	//fen.add(Dessin2);
+	pangen.add(Dessin2,BorderLayout.EAST);
+	fen.setVisible(true);
+	this.parcoursPrefixe(T);
+	JOptionPane.showMessageDialog (
+			this.pangen, "Reception de l'accusé de l'éditeur!!", 
+			"Accusé reception", JOptionPane.OK_OPTION);
+	System.out.println("Accusé recu");
+	tpane.setSelectedComponent(pane4);
+	return;
+}
+}
+
+def etat(decision:String){
+	var etat:Arbre=new Arbre("Etat");
+etat.setNbreDeFils(1);
+etat.setPère(noeudCourant);
+noeudCourant.setFilsDroit(etat);
+noeudCourant=etat;
+if(decision.equals("Accepte")){
+	System.out.println("Article accepté");
+	var a:Arbre=new Arbre("Accepte");
+	a.setPère(etat);
+	etat.setFilsGauche(a);
+	a.setNbreDeFils(0);
+	fen.setVisible(false);
+	pangen.remove(Dessin2);
+	Dessin2=new AuteurTree();
+	Dessin2.parcoursPrefixeTreeNode(this.T,null);
+	//fen.add(Dessin2);
+	pangen.add(Dessin2,BorderLayout.EAST);
+	fen.setVisible(true);
+	this.parcoursPrefixe(T);
+	JOptionPane.showMessageDialog (
+			this.pangen, "Reception de la décision de l'éditeur!!", 
+			"Traitement éditeur", JOptionPane.OK_OPTION);
+	tpane.setSelectedComponent(pane4);
+	return;
+}
+else if(decision.equals("Rejete")){
+	System.out.println("Article rejeté");
+	var a:Arbre=new Arbre("Rejete");
+	a.setPère(etat);
+	etat.setFilsGauche(a);
+	a.setNbreDeFils(0);
+	fen.setVisible(false);
+	pangen.remove(Dessin2);
+	Dessin2=new AuteurTree();
+	Dessin2.parcoursPrefixeTreeNode(this.T,null);
+	//fen.add(Dessin2);
+	pangen.add(Dessin2,BorderLayout.EAST);
+	fen.setVisible(true);
+	this.parcoursPrefixe(T);
+	JOptionPane.showMessageDialog (
+			this.pangen, "Reception de la décision de l'éditeur!!", 
+			"Traitement éditeur", JOptionPane.OK_OPTION);
+	tpane.setSelectedComponent(pane4);
+	return;
+}
+else{
+	//Article Accepté Si Modifications apportées
+	System.out.println("Article accepté si modifié");
+	var a:Arbre=new Arbre("AccSModif");
+	a.setPère(etat);
+	etat.setFilsGauche(a);
+	a.setNbreDeFils(1);
+	noeudCourant=a;
+	fen.setVisible(false);
+	pangen.remove(Dessin2);
+	Dessin2=new AuteurTree();
+	Dessin2.parcoursPrefixeTreeNode(this.T,null);
+	//fen.add(Dessin2);
+	pangen.add(Dessin2,BorderLayout.EAST);
+	fen.setVisible(true);
+	JOptionPane.showMessageDialog (
+			this.pangen, "Reception de la décision de l'éditeur!!", 
+			"Traitement éditeur", JOptionPane.OK_OPTION);
+	System.out.println("Première Décision recue");
+	tpane.setSelectedComponent(pane4);
+	return;
+
+}
+}
+
+def envoiCorrection(){
+	if(!noeudCourant.getValeur.equals("AccSModif")){
+		JOptionPane.showMessageDialog (
+				this.pangen, "Pas de correction en demande!!", 
+				"Erreur d'envoi", JOptionPane.ERROR_MESSAGE);
+		return;
+	}
+	var a:Article=new Article;
+	a.setTitle(ttitle2.getText());
+	a.setAuthorName(tname2.getText());
+	a.setPath(art2.getText());
+	a.setResume(tresum2.getText());
+	this.ed.parseur("accsmodif", a);
+}
+
+def correction(decision:String){
+	if(!noeudCourant.getValeur.equals("AccSModif")){
+		return;
+	}
+	var corr:Arbre=new Arbre("Correction");
+	corr.setNbreDeFils(1);
+	corr.setPère(noeudCourant);
+	noeudCourant.setFilsGauche(corr);
+	//noeudCourant=corr;
+	if(decision.equals("Accepte")){
+		System.out.println("Article accepté");
+		var a:Arbre=new Arbre("Accepte");
+		a.setPère(corr);
+		corr.setFilsGauche(a);
+		a.setNbreDeFils(0);
+		fen.setVisible(false);
+		pangen.remove(Dessin2);
+		Dessin2=new AuteurTree();
+		Dessin2.parcoursPrefixeTreeNode(this.T,null);
+		//fen.add(Dessin2);
+		pangen.add(Dessin2,BorderLayout.EAST);
+		fen.setVisible(true);
+		this.parcoursPrefixe(T);
+		JOptionPane.showMessageDialog (
+				this.pangen, "Reception de la décision de l'éditeur!!", 
+				"Traitement éditeur", JOptionPane.OK_OPTION);
+		tpane.setSelectedComponent(pane4);
+		return;
+	}
+	else{
+		//Article Accepté Si Modifications apportées
+		System.out.println("Article accepté si modifié");
+		var a:Arbre=new Arbre("AccSModif");
+		a.setPère(corr);
+		corr.setFilsGauche(a);
+		a.setNbreDeFils(1);
+		noeudCourant=a;
+		fen.setVisible(false);
+		pangen.remove(Dessin2);
+		Dessin2=new AuteurTree();
+		Dessin2.parcoursPrefixeTreeNode(this.T,null);
+		//fen.add(Dessin2);
+		pangen.add(Dessin2,BorderLayout.EAST);
+		fen.setVisible(true);
+		JOptionPane.showMessageDialog (
+				this.pangen, "Reception de la décision de l'éditeur!!", 
+				"Traitement éditeur", JOptionPane.OK_OPTION);
+		System.out.println("Autre Décision recue");
+		tpane.setSelectedComponent(pane4);
+		return;
+	}
+}
+
+def  parcoursPrefixe(a:Arbre){
+	if (a == null)
+		return;
+	System.out.print(a.getValeur()+" ");
+	parcoursPrefixe(a.getFilsGauche());
+	parcoursPrefixe(a.getFilsDroit());
+}
+
+//Fonction pour réinitialiser l'arbre T ou l'arborescence
+def réinitAll (){
+  T=new Arbre()
+  noeudCourant=new Arbre()
+  fen.setVisible(false);
+  pangen.remove(Dessin2);
+  Dessin2=new AuteurTree();
+  Dessin2.parcoursPrefixeTreeNode(this.T,null);
+  //fen.add(Dessin2);
+  pangen.add(Dessin2,BorderLayout.EAST);
+  fen.setVisible(true);
+}
+
+
+
+
+
+}

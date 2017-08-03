@@ -1,0 +1,93 @@
+!SESSION 2017-08-03 17:39:08.281 -----------------------------------------------
+eclipse.buildId=3.0.2-vfinal-20131028-1923-Typesafe
+java.version=1.8.0_11
+java.vendor=Oracle Corporation
+BootLoader constants: OS=win32, ARCH=x86, WS=win32, NL=fr_FR
+Command-line arguments:  -os win32 -ws win32 -arch x86 -data C:\Users\Thierry\Documents\Workspaces Git-Hub\Scala Project\master-thesis-project
+
+!ENTRY org.eclipse.jface 2 0 2017-08-03 17:39:14.876
+!MESSAGE Keybinding conflicts occurred.  They may interfere with normal accelerator operation.
+!SUBENTRY 1 org.eclipse.jface 2 0 2017-08-03 17:39:14.876
+!MESSAGE A conflict occurred for CTRL+F4:
+Binding(CTRL+F4,
+	ParameterizedCommand(Command(org.eclipse.ui.file.close,Close,
+		Close the active editor,
+		Category(org.eclipse.ui.category.file,File,null,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@118401b,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+Binding(CTRL+F4,
+	ParameterizedCommand(Command(org.scala.tools.eclipse.search.commands.OpenTypeHierarchy,Open Type Hierarchy,
+		Open Type Hierarchy,
+		Category(org.scala.tools.eclipse.search.commands,Search - Scala,Search - Scala,true),
+		org.eclipse.ui.internal.WorkbenchHandlerServiceHandler@bcfcf1,
+		,,true),null),
+	org.eclipse.ui.defaultAcceleratorConfiguration,
+	org.eclipse.ui.contexts.window,,,system)
+
+!ENTRY org.scala-ide.sdt.core 1 0 2017-08-03 19:05:16.326
+!MESSAGE Timeout in askOption
+!STACK 0
+java.lang.Throwable
+	at scala.tools.eclipse.ScalaPresentationCompiler.askOption(ScalaPresentationCompiler.scala:150)
+	at scala.tools.eclipse.ScalaPresentationCompiler.askOption(ScalaPresentationCompiler.scala:137)
+	at scala.tools.eclipse.semantichighlighting.classifier.SafeSymbol$class.safeSymbol(SafeSymbol.scala:109)
+	at scala.tools.eclipse.semantichighlighting.classifier.SymbolClassification.safeSymbol(SymbolClassification.scala:37)
+	at scala.tools.eclipse.semantichighlighting.classifier.SymbolClassification$$anonfun$5.apply(SymbolClassification.scala:68)
+	at scala.tools.eclipse.semantichighlighting.classifier.SymbolClassification$$anonfun$5.apply(SymbolClassification.scala:66)
+	at scala.collection.TraversableLike$$anonfun$flatMap$1.apply(TraversableLike.scala:251)
+	at scala.collection.TraversableLike$$anonfun$flatMap$1.apply(TraversableLike.scala:251)
+	at scala.collection.immutable.List.foreach(List.scala:318)
+	at scala.collection.TraversableLike$class.flatMap(TraversableLike.scala:251)
+	at scala.collection.AbstractTraversable.flatMap(Traversable.scala:105)
+	at scala.tools.eclipse.semantichighlighting.classifier.SymbolClassification.classifySymbols(SymbolClassification.scala:66)
+	at scala.tools.eclipse.semantichighlighting.Presenter$SemanticHighlightingJob$$anonfun$performSemanticHighlighting$1.apply(Presenter.scala:122)
+	at scala.tools.eclipse.semantichighlighting.Presenter$SemanticHighlightingJob$$anonfun$performSemanticHighlighting$1.apply(Presenter.scala:118)
+	at scala.tools.eclipse.ScalaPresentationCompiler.withSourceFile(ScalaPresentationCompiler.scala:108)
+	at scala.tools.eclipse.ScalaProject$$anonfun$withSourceFile$1.apply(ScalaProject.scala:602)
+	at scala.tools.eclipse.ScalaProject$$anonfun$withSourceFile$1.apply(ScalaProject.scala:601)
+	at scala.tools.eclipse.ScalaProject$$anonfun$withPresentationCompiler$1.apply(ScalaProject.scala:595)
+	at scala.tools.eclipse.ScalaProject$$anonfun$withPresentationCompiler$1.apply(ScalaProject.scala:594)
+	at scala.tools.eclipse.util.Cached$class.apply(Cached.scala:41)
+	at scala.tools.eclipse.ScalaProject$$anon$1.apply(ScalaProject.scala:95)
+	at scala.tools.eclipse.ScalaProject.withPresentationCompiler(ScalaProject.scala:594)
+	at scala.tools.eclipse.ScalaProject.withSourceFile(ScalaProject.scala:603)
+	at scala.tools.eclipse.InteractiveCompilationUnit$class.withSourceFile(InteractiveCompilationUnit.scala:66)
+	at scala.tools.eclipse.javaelements.ScalaSourceFile.withSourceFile(ScalaSourceFile.scala:69)
+	at scala.tools.eclipse.semantichighlighting.Presenter$SemanticHighlightingJob.performSemanticHighlighting(Presenter.scala:145)
+	at scala.tools.eclipse.semantichighlighting.Presenter$SemanticHighlightingJob.run(Presenter.scala:114)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
+
+!ENTRY org.scala-ide.sdt.core 1 0 2017-08-03 19:05:26.625
+!MESSAGE Timeout in askOption
+!STACK 0
+java.lang.Throwable
+	at scala.tools.eclipse.ScalaPresentationCompiler.askOption(ScalaPresentationCompiler.scala:150)
+	at scala.tools.eclipse.ScalaPresentationCompiler.askOption(ScalaPresentationCompiler.scala:137)
+	at scala.tools.eclipse.semantichighlighting.classifier.SafeSymbol$class.safeSymbol(SafeSymbol.scala:109)
+	at scala.tools.eclipse.semantichighlighting.classifier.SymbolClassification.safeSymbol(SymbolClassification.scala:37)
+	at scala.tools.eclipse.semantichighlighting.classifier.SymbolClassification$$anonfun$5.apply(SymbolClassification.scala:68)
+	at scala.tools.eclipse.semantichighlighting.classifier.SymbolClassification$$anonfun$5.apply(SymbolClassification.scala:66)
+	at scala.collection.TraversableLike$$anonfun$flatMap$1.apply(TraversableLike.scala:251)
+	at scala.collection.TraversableLike$$anonfun$flatMap$1.apply(TraversableLike.scala:251)
+	at scala.collection.immutable.List.foreach(List.scala:318)
+	at scala.collection.TraversableLike$class.flatMap(TraversableLike.scala:251)
+	at scala.collection.AbstractTraversable.flatMap(Traversable.scala:105)
+	at scala.tools.eclipse.semantichighlighting.classifier.SymbolClassification.classifySymbols(SymbolClassification.scala:66)
+	at scala.tools.eclipse.semantichighlighting.Presenter$SemanticHighlightingJob$$anonfun$performSemanticHighlighting$1.apply(Presenter.scala:122)
+	at scala.tools.eclipse.semantichighlighting.Presenter$SemanticHighlightingJob$$anonfun$performSemanticHighlighting$1.apply(Presenter.scala:118)
+	at scala.tools.eclipse.ScalaPresentationCompiler.withSourceFile(ScalaPresentationCompiler.scala:108)
+	at scala.tools.eclipse.ScalaProject$$anonfun$withSourceFile$1.apply(ScalaProject.scala:602)
+	at scala.tools.eclipse.ScalaProject$$anonfun$withSourceFile$1.apply(ScalaProject.scala:601)
+	at scala.tools.eclipse.ScalaProject$$anonfun$withPresentationCompiler$1.apply(ScalaProject.scala:595)
+	at scala.tools.eclipse.ScalaProject$$anonfun$withPresentationCompiler$1.apply(ScalaProject.scala:594)
+	at scala.tools.eclipse.util.Cached$class.apply(Cached.scala:41)
+	at scala.tools.eclipse.ScalaProject$$anon$1.apply(ScalaProject.scala:95)
+	at scala.tools.eclipse.ScalaProject.withPresentationCompiler(ScalaProject.scala:594)
+	at scala.tools.eclipse.ScalaProject.withSourceFile(ScalaProject.scala:603)
+	at scala.tools.eclipse.InteractiveCompilationUnit$class.withSourceFile(InteractiveCompilationUnit.scala:66)
+	at scala.tools.eclipse.javaelements.ScalaSourceFile.withSourceFile(ScalaSourceFile.scala:69)
+	at scala.tools.eclipse.semantichighlighting.Presenter$SemanticHighlightingJob.performSemanticHighlighting(Presenter.scala:145)
+	at scala.tools.eclipse.semantichighlighting.Presenter$SemanticHighlightingJob.run(Presenter.scala:114)
+	at org.eclipse.core.internal.jobs.Worker.run(Worker.java:53)
